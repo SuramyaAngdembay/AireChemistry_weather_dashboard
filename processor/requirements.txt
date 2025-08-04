@@ -5,3 +5,4 @@ pillow
 pydantic
 matplotlib
 python-dotenv
+rasterio

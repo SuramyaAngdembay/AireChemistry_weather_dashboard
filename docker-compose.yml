@@ -8,7 +8,7 @@ services:
     image: ghcr.io/open-meteo/open-meteo
     container_name: open-meteo-api
     ports:
-      - "80:8080"
+      - "8081:8080"
     command: serve
     volumes:
       - data:/app/data
@@ -40,6 +40,30 @@ services:
       - data:/data
     entrypoint: ["python", "build_grids.py"]
 
+  satellite-fetcher:
+    build: ./satellite-fetcher
+    container_name: satellite-fetcher
+    depends_on:
+      - fastapi-processor
+    volumes:
+      - data:/data
+    restart: always
+    environment:
+      <<: *shared_environment
+      EUMETSAT_CONSUMER_KEY: ${EUMETSAT_CONSUMER_KEY}
+      EUMETSAT_CONSUMER_SECRET: ${EUMETSAT_CONSUMER_SECRET}
+    entrypoint: ["python", "fetch_satellite_data.py"]
+
+  temp-frame-generator:
+    build: ./temp-frame-generator
+    container_name: temp-frame-generator
+    depends_on:
+      - batch-builder
+    volumes:
+      - data:/data
+    entrypoint: ["python", "generate_temp_frames.py"]
+
+
   fastapi-processor:
     build: ./processor
     container_name: fastapi-processor
@@ -47,9 +71,16 @@ services:
       - "5000:5000"
     volumes:
       - data:/data
+      - ./era5_rasters_bins:/data/era5_rasters_bins
+      - ./interpolated_rasters:/data/interpolated_rasters
     restart: always
     environment:
       <<: *shared_environment
+    
+
+      
+
+
 
 volumes:
   data:

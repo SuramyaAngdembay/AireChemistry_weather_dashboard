@@ -11,3 +11,16 @@ data/
 data
 .cache
 .venv
+.nc
+.png
+.tif
+.zip
+.shp
+era5_small/
+era5_rasters_bins/
+interpolated_rasters/
+output/
+*.db
+*.sqlite
+logs/
+
